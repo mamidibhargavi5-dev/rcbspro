@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { margin: 5px; padding: 8px; width: 250px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h2>Search Student Details</h2>
+
+  <!-- ✅ Search bar -->
+  <input type="text" id="searchBar" placeholder="Search by Name / Pin / Phone">
+
+  <h2>Stored Students</h2>
+  <table id="studentTable">
+    <tr>
+      <th>Name</th>
+      <th>Pin No</th>
+      <th>Parent Phone No</th>
+    </tr>
+  </table>
+
+  <script>
+    const table = document.getElementById('studentTable');
+    const searchBar = document.getElementById('searchBar');
+
+    // Load existing data from localStorage
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+
+    function displayStudents(filter = "") {
+      table.innerHTML = `
+        <tr>
+          <th>Name</th>
+          <th>Pin No</th>
+          <th>Parent Phone No</th>
+        </tr>`;
+
+      // ✅ Filter students based on search
+      students
+        .filter(s => 
+          s.name.toLowerCase().includes(filter) || 
+          s.pin.toLowerCase().includes(filter) || 
+          s.phone.toLowerCase().includes(filter)
+        )
+        .forEach(s => {
+          let row = table.insertRow();
+          row.insertCell(0).innerText = s.name;
+          row.insertCell(1).innerText = s.pin;
+          row.insertCell(2).innerText = s.phone;
+        });
+    }
+
+    // ✅ Live search event
+    searchBar.addEventListener("input", function() {
+      const keyword = this.value.toLowerCase();
+      displayStudents(keyword);
+    });
+
+    displayStudents();
+  </script>
+</body>
+</html>

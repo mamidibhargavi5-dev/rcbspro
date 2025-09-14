@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - Attendance System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(12px);
+            width: 350px;
+            text-align: center;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .login-box h2 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
+        .login-box input {
+            width: 100%;
+            margin: 12px 0;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .login-box input:focus {
+            background: #fff;
+            box-shadow: 0 0 8px rgba(100, 181, 246, 0.8);
+        }
+
+        .login-box button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #64b5f6, #81c784);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .login-box button:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(135deg, #43a047, #2196f3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .login-links {
+            margin-top: 15px;
+        }
+
+        .login-links a {
+            color: #333;
+            font-size: 14px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .login-links a:hover {
+            text-decoration: underline;
+            color: #1e88e5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ✅ Toast style */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #f44336; /* red */
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 17px;
+            opacity: 0;
+            transition: opacity 0.5s, bottom 0.5s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <input type="text" id="teammates" placeholder="Enter Username" required>
+            <input type="password" id="rcbs" placeholder="Enter Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="login-links">
+            <a href="login.html">Back to Home</a>
+        </div>
+    </div>
+
+    <!-- ✅ Toast container -->
+    <div id="toast">❌ You entered wrong PIN</div>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const toast = document.getElementById("toast");
+
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById("teammates").value;
+            const password = document.getElementById("rcbs").value;
+
+            // ✅ Example credentials (replace with DB/PHP check)
+            if (username === "teammates" && password === "rcbs") {
+                window.location.href = "admin_dashboard.html"; // success
+            } else {
+                showToast();
+            }
+        });
+
+        function showToast() {
+            toast.className = "show";
+            setTimeout(() => {
+                toast.className = toast.className.replace("show", "");
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

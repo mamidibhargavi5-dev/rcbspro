@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #d7f3f7, #f0f7da); /* soft subtle gradient */
+            text-align: center; 
+            padding: 50px; 
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard { 
+            background: rgba(255, 255, 255, 0.9); /* glass effect */
+            padding: 40px 30px;
+            border-radius: 15px; 
+            width: 350px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); 
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .dashboard h2 { 
+            margin-bottom: 25px; 
+            color: #2c3e50;
+            font-size: 24px;
+        }
+
+        .dashboard a {
+            display: block;
+            margin: 12px 0;
+            padding: 14px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Green button for View Report */
+        .dashboard a.report {
+            background: linear-gradient(135deg, #4CAF50, #2e7d32);
+        }
+        .dashboard a.report:hover {
+            background: linear-gradient(135deg, #43a047, #1b5e20);
+            transform: translateY(-3px);
+        }
+
+        /* Red button for Logout */
+        .dashboard a.logout {
+            background: linear-gradient(135deg, #f44336, #c62828);
+        }
+        .dashboard a.logout:hover {
+            background: linear-gradient(135deg, #e53935, #8e0000);
+            transform: translateY(-3px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h2>🎓 Welcome Students!</h2>
+        <a href="report.html" class="report">📊 View Report</a>
+        <a href="logout.html" class="logout">🚪 Logout</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<?php
+session_start();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $_SESSION['username'] = $_POST['username'];
+}
+if (!isset($_SESSION['username'])) {
+    header("Location: admin_login.html");
+    exit();
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #e0f7fa, #f1f8e9); /* 🌸 Soft light gradient */
+        }
+
+        .dashboard {
+            background: rgba(255, 255, 255, 0.25); /* glass effect */
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            width: 350px;
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .menu form {
+            margin: 10px 0;
+        }
+
+        .menu button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #64b5f6, #81c784);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .menu button:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(135deg, #43a047, #2196f3);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .menu button.logout {
+            background: linear-gradient(135deg, #ff6f61, #e53935);
+        }
+
+        .menu button.logout:hover {
+            background: linear-gradient(135deg, #d32f2f, #b71c1c);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h2>Welcome To Student Attendance Website  <br><?php echo $_SESSION['username']; ?></h2>
+        
+        <div class="menu">
+            <form action="index.html">
+                <button type="submit">Mark Attendance</button>
+            </form>
+            <form action="report.html">
+                <button type="submit">View Report</button>
+            </form>
+            <form action="student_details.html">
+                <button type="submit">Student Details</button>
+            </form>
+            <form action="logout.html">
+                <button type="submit" class="logout">Logout</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

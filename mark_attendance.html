@@ -1,0 +1,253 @@
+<?php include 'db.php'; ?> 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Attendance Website</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { text-align: center; }
+    input, button { padding: 8px; margin: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    table, th, td { border: 1px solid #999; }
+    th, td { padding: 10px; text-align: center; }
+    .present { background-color: #c8f7c5; }
+    .absent { background-color: #f8d7da; }
+    .holiday { background-color: #f5b7b1; font-weight: bold; color: white; }
+    #confirmBtn {
+      margin-top: 20px; padding: 10px 20px; font-size: 16px;
+      font-weight: bold; background-color: #4CAF50;
+      color: white; border: none; border-radius: 5px; cursor: pointer;
+    }
+    #confirmBtn:disabled { background-color: gray; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <h1>Student Attendance</h1>
+
+  <!-- Student Entry Form -->
+  <input type="text" id="studentName" placeholder="Enter student name" />
+  <input type="text" id="studentPin" placeholder="Enter student pin number" />
+  <input type="text" id="parentPhone" placeholder="Enter parent phone number" />
+  <button onclick="addStudent()">Add Student</button>
+  <button onclick="markAllPresent()">Mark All Presents</button><br>
+
+  <!-- Date + Holiday -->
+  <label>Select Date: </label>
+  <input type="date" id="attendanceDate" value="" />
+  <button onclick="setHoliday()">Set Holiday</button><br><br>
+
+  <!-- Table -->
+  <table id="attendanceTable">
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Pin No</th>
+        <th>Parent Phone</th>
+        <th>Status (<span id="displayDate"></span>)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <button id="confirmBtn" onclick="confirmAttendance()">Confirm Attendance</button>
+
+  <script>
+    // ✅ Get branch & year from URL
+    const params = new URLSearchParams(window.location.search);
+    const selectedBranch = params.get("branch");
+    const selectedYear = params.get("year");
+
+    if (!selectedBranch || !selectedYear) {
+      alert("❌ Branch & Year not selected! Please go back to homepage.");
+    }
+
+    // Update heading
+    document.querySelector("h1").textContent =
+      `Attendance - ${selectedBranch} (Year ${selectedYear})`;
+
+    const attendanceDateInput = document.getElementById("attendanceDate");
+    const displayDate = document.getElementById("displayDate");
+    const confirmBtn = document.getElementById("confirmBtn");
+
+    const today = new Date().toISOString().split("T")[0];
+    attendanceDateInput.value = today;
+
+    let students = JSON.parse(localStorage.getItem("students")) || [];
+    let confirmedDates = JSON.parse(localStorage.getItem("confirmedDates")) || {};
+    let holidays = JSON.parse(localStorage.getItem("holidays")) || [];
+
+    function saveData() {
+      localStorage.setItem("students", JSON.stringify(students));
+      localStorage.setItem("confirmedDates", JSON.stringify(confirmedDates));
+      localStorage.setItem("holidays", JSON.stringify(holidays));
+    }
+
+    function getSelectedDate() {
+      return attendanceDateInput.value;
+    }
+
+    attendanceDateInput.addEventListener("change", renderTable);
+
+    function renderTable() {
+      const date = getSelectedDate();
+      displayDate.textContent = date;
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      const isSunday = new Date(date).getDay() === 0;
+      const isHoliday = holidays.includes(date);
+
+      // ✅ Loop through all students with their true global index
+      students.forEach((student, globalIndex) => {
+        if (student.branch !== selectedBranch || student.year !== selectedYear) return;
+
+        const row = document.createElement("tr");
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = student.name;
+        row.appendChild(nameCell);
+
+        const pinCell = document.createElement("td");
+        pinCell.textContent = student.pin;
+        row.appendChild(pinCell);
+
+        const phoneCell = document.createElement("td");
+        phoneCell.textContent = student.phone;
+        row.appendChild(phoneCell);
+
+        const statusCell = document.createElement("td");
+        if (isSunday || isHoliday) {
+          statusCell.textContent = "Holiday";
+          statusCell.className = "holiday";
+        } else {
+          const status = student.attendance?.[date] || "Absent";
+          statusCell.textContent = status;
+          statusCell.className = status.toLowerCase();
+          if (!confirmedDates[date]) {
+            statusCell.onclick = () => toggleAttendance(globalIndex);
+          }
+        }
+        row.appendChild(statusCell);
+
+        const actionCell = document.createElement("td");
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => updateStudent(globalIndex);
+        editBtn.disabled = confirmedDates[date] || isSunday || isHoliday;
+        actionCell.appendChild(editBtn);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.onclick = () => deleteStudent(globalIndex);
+        deleteBtn.disabled = confirmedDates[date] || isSunday || isHoliday;
+        actionCell.appendChild(deleteBtn);
+
+        row.appendChild(actionCell);
+        tableBody.appendChild(row);
+      });
+
+      confirmBtn.disabled = confirmedDates[date] || isSunday || isHoliday;
+    }
+
+    function addStudent() {
+      const name = document.getElementById("studentName").value.trim();
+      const pin = document.getElementById("studentPin").value.trim();
+      const phone = document.getElementById("parentPhone").value.trim();
+
+      if (name === "" || pin === "" || phone === "") {
+        return alert("Please enter all details (name, pin, phone).");
+      }
+
+      const date = getSelectedDate();
+      const newStudent = {
+        name, pin, phone,
+        branch: selectedBranch,
+        year: selectedYear,
+        attendance: { [date]: "Present" }
+      };
+
+      students.push(newStudent);
+      saveData();
+      renderTable();
+
+      document.getElementById("studentName").value = "";
+      document.getElementById("studentPin").value = "";
+      document.getElementById("parentPhone").value = "";
+    }
+
+    function toggleAttendance(index) {
+      const date = getSelectedDate();
+      if (!students[index].attendance) students[index].attendance = {};
+      const currentStatus = students[index].attendance[date];
+      students[index].attendance[date] = currentStatus === "Present" ? "Absent" : "Present";
+      saveData();
+      renderTable();
+    }
+
+    function markAllPresent() {
+      const date = getSelectedDate();
+      const isSunday = new Date(date).getDay() === 0;
+      if (isSunday || holidays.includes(date)) {
+        alert("Attendance cannot be marked on holidays or Sundays!");
+        return;
+      }
+      students
+        .filter(student => student.branch === selectedBranch && student.year === selectedYear)
+        .forEach(student => {
+          if (!student.attendance) student.attendance = {};
+          student.attendance[date] = "Present";
+        });
+      saveData();
+      renderTable();
+    }
+
+    function updateStudent(index) {
+      const newName = prompt("Enter new name:", students[index].name);
+      const newPin = prompt("Enter new pin:", students[index].pin);
+      const newPhone = prompt("Enter new parent phone:", students[index].phone);
+
+      if (newName && newName.trim() !== "") students[index].name = newName.trim();
+      if (newPin && newPin.trim() !== "") students[index].pin = newPin.trim();
+      if (newPhone && newPhone.trim() !== "") students[index].phone = newPhone.trim();
+
+      saveData();
+      renderTable();
+    }
+
+    function deleteStudent(index) {
+      if (confirm("Are you sure you want to delete this student?")) {
+        students.splice(index, 1);
+        saveData();
+        renderTable();
+      }
+    }
+
+    function confirmAttendance() {
+      const date = getSelectedDate();
+      confirmedDates[date] = true;
+      saveData();
+      alert("✅ Attendance confirmed for " + date);
+      renderTable();
+    }
+
+    function setHoliday() {
+      const date = getSelectedDate();
+      if (!holidays.includes(date)) {
+        holidays.push(date);
+        saveData();
+        alert("📌 " + date + " marked as holiday!");
+      } else {
+        alert("❌ Already marked as holiday!");
+      }
+      renderTable();
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
